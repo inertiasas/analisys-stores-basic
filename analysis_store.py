@@ -1,6 +1,26 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# # Obtener la información de la tienda
+# 
+# Autor: Luis Camilo Jimenez, CEO
+# 
+
+# ## Librerías
+
+# In[1]:
+
+
 import requests
 from bs4 import BeautifulSoup
 import json
+import pandas as pd
+
+
+# ## Listado de productos
+
+# In[2]:
+
 
 term = 'leche'
 url_search = 'https://busqueda.tiendasjumbo.co/busca?q={0}'.format(term)
@@ -8,6 +28,14 @@ search = requests.get(url_search)
 soup_search = BeautifulSoup(search.text, "html5lib")
 results = soup_search.find_all('h2',class_="nm-product-name")
 print(results[:2])
+
+
+# ## Información del producto
+# 
+# Extracción de información: Categorias, imagén, nombre, descripción, precio
+
+# In[3]:
+
 
 products = []
 for index, result in enumerate(results):
@@ -33,3 +61,26 @@ for index, result in enumerate(results):
     products.append(product)
     
 print(json.dumps(products[:2], indent=4, sort_keys=True))
+
+
+# # Analizar los productos
+# 
+# ## Extraer campos a analizar
+
+# In[8]:
+
+
+df = pd.DataFrame.from_dict(products)
+col = ['category_1', 'name']
+df = df[col]
+print(df.head())
+
+
+# In[9]:
+
+
+df = df[pd.notnull(df['name'])]
+df.columns = ['category', 'name']
+
+
+# # Agregaremos una columna que codificará la categoría como un entero
